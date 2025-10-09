@@ -8,27 +8,32 @@ public class Message {
         
     }
 
-    private String getSender() {
+    public String getSender() {
         return sender;
     }
 
-    private String getReciever() {
+    public String getReciever() {
         return reciever;
     }
 
-    private String getContent() {
+    public String getContent() {
         return content;
     }
 
-    private void setSender(String sender) {
+    public void setSender(String sender) {
         this.sender = sender;
     }
 
-    private void setReciever(String reciever) {
+    public void setReciever(String reciever) {
         this.reciever = reciever;
     }
 
-    private void setContent(String content) {
+    public void setContent(String content) {
         this.content = content;
     }
+
+    public String getFormattedMessage() {
+        return sender + ':' + content + ':' + reciever;
+    }
+
 }

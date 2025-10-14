@@ -7,12 +7,26 @@ import java.io.InputStreamReader;
 
 import java.net.Socket;
 
-public class MessageReciever {
+public class MessageReciever implements Runnable {
 
     private Socket socket;
 
     public MessageReciever(Socket tcpSocket) {
         this.socket = tcpSocket;
+    }
+
+    @Override
+    public void run() {
+        while (true) { // MAYBE OTHER CONDITION TO STOP
+            String message = recieveMsgFromServer();
+            if (message != null) {
+                System.out.println("New message: " + message);
+            } else {
+                System.out.println("Connection closed by server.");
+                break;
+            }
+            
+        }
     }
 
     public String recieveMsgFromServer() {

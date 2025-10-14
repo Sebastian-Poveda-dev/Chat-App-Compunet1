@@ -8,9 +8,21 @@ version = '1.0.0'
 
 dependencies {
     implementation project(':common')
-    implementation project(':client')
+    
 }
 
 application {
-    mainClass = 'com.chatapp.server.ui.Main' // Adjust the main class path as necessary
+    mainClass = 'com.chatapp.server.ui.Server' // Adjust the main class path as necessary
+}
+
+jar {
+    manifest {
+        attributes(
+            'Main-Class': 'com.chatapp.server.ui.Server'
+        )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

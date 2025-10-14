@@ -1,9 +1,14 @@
-package com.chatapp.server.model;
+package com.chatapp.server.ui;
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.chatapp.server.model.ClientHandler;
+
 
 
 public class Server {
@@ -15,6 +20,7 @@ public class Server {
         final int port = 5000;
 
         ServerSocket serverSocket;
+        DatagramSocket udpServerSocket; // For future UDP use
         try {
             serverSocket = new ServerSocket(port);
         } catch (IOException e) {
@@ -24,24 +30,27 @@ public class Server {
         }
 
         Map<String, ClientHandler> onlineUsers = new ConcurrentHashMap<>();
+        Map<String, ArrayList<String>> groups = new ConcurrentHashMap<>();
 
         while (true) {
             try {
                 Socket newClient = serverSocket.accept();
+
+                ClientHandler clientHandler = new ClientHandler(newClient, onlineUsers, groups);
+                Thread clientThread = new Thread(clientHandler);
+                clientThread.start();
+
             } catch (IOException e) {
                 System.out.println("Error accepting client connection");
                 e.printStackTrace();
             }
             
 
-            ClientHandler clientHandler; // TODO = new ClientHandler(newClient, onlineUsers);
+            
             
         }
         
     }
 
-    public void registerUser(String username, ClientHandler handler, Map<String, ClientHandler> onlineUsers) {
-        onlineUsers.put(username, handler);
-        System.out.println("User registered: " + username);
-    }
+
 }

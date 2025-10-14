@@ -1,6 +1,16 @@
 package com.chatapp.client.model;
 
+import com.chatapp.common.Message;
+
 public class CLI {
+
+    private String currentUser;
+    private MessageSender messageSender;
+
+    public CLI(String currentUser, MessageSender messageSender) {
+        this.currentUser = currentUser;
+        this.messageSender = messageSender;
+    }
 
     public void displayCommands() {
         System.out.println("Available commands:");
@@ -16,10 +26,53 @@ public class CLI {
         System.out.println("/exit - Exit the application");
     }
 
-    public void executeCommand() {
+    public void executeCommand(String command) {
         // Implementation for executing commands
-        
+
+        if (command.startsWith("/msg") || command.startsWith("/msgg")) {
+            msgExe(command);
+        } else if (command.startsWith("/createg")) {
+            createGroupExe(command);
+        } else if (command.startsWith("/joing")) {
+            joinGroupExe(command);
+        }
     }
+
+    private void msgExe(String command) {
+        Message msg = Message.fromCommand(currentUser, command);
+        if (msg != null) {
+            messageSender.setMessageContent(msg.getFormattedMessage());
+            messageSender.sendMsgToServer();
+        }
+    }
+
+    private void createGroupExe(String command) {
+        String[] commandParts = command.split(" ", 3);
+        if (commandParts.length >= 2) {
+            String groupName = commandParts[1];
+            String members = commandParts.length > 2 ? commandParts[2] : "";
+            String createGroupCommand = "CREATE_GROUP:" + groupName + ":" + currentUser + ":" + members;
+            messageSender.setMessageContent(createGroupCommand);
+            messageSender.sendMsgToServer();
+        } else {
+            System.out.println("Usage: /createg <groupname> <user1 , user2, user3...>");
+        }
+    }
+
+    private void joinGroupExe(String command) {
+        String[] commandParts = command.split(" ", 2);
+        if (commandParts.length == 2) {
+            String groupName = commandParts[1];
+            String joinGroupCommand = "JOIN_GROUP:" + groupName + ":" + currentUser;
+            messageSender.setMessageContent(joinGroupCommand); 
+            messageSender.sendMsgToServer();
+        } else {
+            System.out.println("Usage: /joing <groupname>");
+        }
+    }
+}
+        
+    
     
 
-}
+

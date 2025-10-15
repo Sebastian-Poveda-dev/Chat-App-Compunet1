@@ -1,18 +1,27 @@
 package com.chatapp.client.model;
 
-import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 public class MessageSender {
 
-    private Socket socket; //remote socket
     private String messageContent;
+    private DataOutputStream dataOutputStream;
 
+    // Constructor that accepts an existing DataOutputStream
+    public MessageSender(DataOutputStream dataOutputStream) {
+        this.dataOutputStream = dataOutputStream;
+    }
+
+    // Legacy constructor for backward compatibility
     public MessageSender(Socket tcpSocket) {
-        this.socket = tcpSocket;
+        try {
+            dataOutputStream = new DataOutputStream(tcpSocket.getOutputStream());
+        } catch (IOException e) {
+            System.out.println("Error initializing DataOutputStream");
+            e.printStackTrace();
+        }
     }
 
     public void setMessageContent(String messageContent) {
@@ -20,24 +29,13 @@ public class MessageSender {
     }
 
     public void sendMsgToServer() {
-
         try {
-            OutputStream os = socket.getOutputStream();
-            OutputStreamWriter osw = new OutputStreamWriter(os);
-            BufferedWriter bw = new BufferedWriter(osw);
-
-            bw.write(messageContent + "\n");
-            bw.flush();
-
-
+            // Use writeUTF to send text messages with length prefix
+            dataOutputStream.writeUTF(messageContent);
+            dataOutputStream.flush();
         } catch (IOException e) {
             System.out.println("Error sending message to server");
             e.printStackTrace();
         }
-        
-
     }
-
-
-    
 }

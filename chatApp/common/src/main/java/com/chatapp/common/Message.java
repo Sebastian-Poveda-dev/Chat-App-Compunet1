@@ -6,10 +6,6 @@ import java.util.UUID;
 
 public class Message {
     
-    public enum MessageType {
-        PRIVATE,    // Para comandos /msg
-        GROUP       // Para comandos /msgg
-    }
     private String sender;
     private String reciever;
     private String content;

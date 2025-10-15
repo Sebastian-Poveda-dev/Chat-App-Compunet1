@@ -1,6 +1,7 @@
 package com.chatapp.server.ui;
 import java.io.IOException;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -22,7 +23,8 @@ public class Server {
         ServerSocket serverSocket;
         DatagramSocket udpServerSocket; // For future UDP use
         try {
-            serverSocket = new ServerSocket(port);
+            InetAddress serverIP = InetAddress.getByName("192.168.1.8");
+            serverSocket = new ServerSocket(port, 50, serverIP);
         } catch (IOException e) {
             System.out.println("Could not start server on port " + port);
             e.printStackTrace();

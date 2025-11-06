@@ -1,0 +1,15 @@
+{
+  "name": "chatapp-http-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HTTP proxy that translates REST requests to the Java TCP chat server protocol",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
+

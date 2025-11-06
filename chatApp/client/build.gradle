@@ -14,7 +14,6 @@ application {
     mainClass = 'com.chatapp.client.ui.Client' // Adjust the main class path as necessary
 }
 
-
 jar {
     manifest {
         attributes(
@@ -26,3 +25,4 @@ jar {
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+

@@ -20,3 +20,7 @@
 .ionide
 # Ignore Gradle build output directory
 build
+ 
+# Node.js dependencies (proxy)
+node_modules/
+**/node_modules/

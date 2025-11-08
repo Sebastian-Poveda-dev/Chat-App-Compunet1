@@ -23,7 +23,7 @@ public class Server {
         ServerSocket serverSocket;
         DatagramSocket udpServerSocket; // For future UDP use
         try {
-            InetAddress serverIP = InetAddress.getByName("192.168.1.8");
+            InetAddress serverIP = InetAddress.getByName("localhost");
             serverSocket = new ServerSocket(port, 50, serverIP);
         } catch (IOException e) {
             System.out.println("Could not start server on port " + port);

@@ -1,5 +1,10 @@
 import express from 'express';
 import { createBridgeFromEnv } from './tcpBridge.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const bridge = createBridgeFromEnv();
@@ -14,6 +19,9 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
+
+// Servir archivos estáticos del cliente web
+app.use(express.static(path.join(__dirname, '../web-client')));
 
 app.get('/health', (req, res) => {
   res.json({ ok: true, proxy: 'up' });

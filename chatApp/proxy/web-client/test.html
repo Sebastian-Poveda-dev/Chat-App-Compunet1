@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API - Chat App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #667eea;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .result {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de API - Chat App</h1>
+    <p>Esta página te permite probar la API del proxy HTTP</p>
+
+    <div class="test-section">
+        <h2>1. Verificar Conexión</h2>
+        <button onclick="testHealth()">Test /health</button>
+        <div id="health-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Registrar Usuario</h2>
+        <input type="text" id="username" placeholder="Nombre de usuario" value="testuser">
+        <button onclick="testRegister()">Test /register</button>
+        <div id="register-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Crear Grupo</h2>
+        <input type="text" id="groupname" placeholder="Nombre del grupo" value="testgroup">
+        <input type="text" id="members" placeholder="Miembros (separados por coma)" value="user1,user2">
+        <button onclick="testCreateGroup()">Test /groups</button>
+        <div id="group-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Enviar Mensaje Privado</h2>
+        <input type="text" id="msgTo" placeholder="Destinatario" value="user1">
+        <input type="text" id="msgContent" placeholder="Mensaje" value="Hola desde test!">
+        <button onclick="testPrivateMessage()">Test /messages/private</button>
+        <div id="private-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Enviar Mensaje de Grupo</h2>
+        <input type="text" id="groupMsg" placeholder="Grupo" value="testgroup">
+        <input type="text" id="groupContent" placeholder="Mensaje" value="Hola grupo!">
+        <button onclick="testGroupMessage()">Test /messages/group</button>
+        <div id="groupmsg-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>6. Ver Inbox</h2>
+        <button onclick="testInbox()">Test /inbox/:username</button>
+        <div id="inbox-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>7. Desregistrar Usuario</h2>
+        <button onclick="testUnregister()">Test DELETE /register/:username</button>
+        <div id="unregister-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🚀 Test Completo</h2>
+        <button onclick="runFullTest()">Ejecutar Todos los Tests</button>
+        <div id="full-test-result" class="result"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+        let currentUsername = null;
+
+        function showResult(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.className = `result ${isError ? 'error' : 'success'}`;
+            element.textContent = message;
+        }
+
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            try {
+                const options = { method, headers: { 'Content-Type': 'application/json' } };
+                if (body) options.body = JSON.stringify(body);
+                
+                const response = await fetch(`${API_URL}${endpoint}`, options);
+                const data = await response.json();
+                
+                return { ok: response.ok, status: response.status, data };
+            } catch (error) {
+                return { ok: false, error: error.message };
+            }
+        }
+
+        async function testHealth() {
+            showResult('health-result', 'Testing...');
+            const result = await apiCall('/health');
+            showResult('health-result', JSON.stringify(result, null, 2), !result.ok);
+        }
+
+        async function testRegister() {
+            const username = document.getElementById('username').value;
+            if (!username) {
+                showResult('register-result', 'Error: Ingresa un nombre de usuario', true);
+                return;
+            }
+            
+            showResult('register-result', 'Registrando...');
+            const result = await apiCall('/register', 'POST', { username });
+            
+            if (result.ok) {
+                currentUsername = username;
+                showResult('register-result', JSON.stringify(result, null, 2));
+            } else {
+                showResult('register-result', JSON.stringify(result, null, 2), true);
+            }
+        }
+
+        async function testCreateGroup() {
+            if (!currentUsername) {
+                showResult('group-result', 'Error: Primero registra un usuario', true);
+                return;
+            }
+
+            const groupname = document.getElementById('groupname').value;
+            const membersStr = document.getElementById('members').value;
+            const members = membersStr ? membersStr.split(',').map(m => m.trim()) : [];
+            
+            showResult('group-result', 'Creando grupo...');
+            const result = await apiCall('/groups', 'POST', {
+                admin: currentUsername,
+                group: groupname,
+                members: members
+            });
+            
+            showResult('group-result', JSON.stringify(result, null, 2), !result.ok);
+        }
+
+        async function testPrivateMessage() {
+            if (!currentUsername) {
+                showResult('private-result', 'Error: Primero registra un usuario', true);
+                return;
+            }
+
+            const to = document.getElementById('msgTo').value;
+            const message = document.getElementById('msgContent').value;
+            
+            showResult('private-result', 'Enviando mensaje...');
+            const result = await apiCall('/messages/private', 'POST', {
+                from: currentUsername,
+                to: to,
+                message: message
+            });
+            
+            showResult('private-result', JSON.stringify(result, null, 2), !result.ok);
+        }
+
+        async function testGroupMessage() {
+            if (!currentUsername) {
+                showResult('groupmsg-result', 'Error: Primero registra un usuario', true);
+                return;
+            }
+
+            const group = document.getElementById('groupMsg').value;
+            const message = document.getElementById('groupContent').value;
+            
+            showResult('groupmsg-result', 'Enviando mensaje...');
+            const result = await apiCall('/messages/group', 'POST', {
+                from: currentUsername,
+                group: group,
+                message: message
+            });
+            
+            showResult('groupmsg-result', JSON.stringify(result, null, 2), !result.ok);
+        }
+
+        async function testInbox() {
+            if (!currentUsername) {
+                showResult('inbox-result', 'Error: Primero registra un usuario', true);
+                return;
+            }
+
+            showResult('inbox-result', 'Obteniendo mensajes...');
+            const result = await apiCall(`/inbox/${currentUsername}`);
+            showResult('inbox-result', JSON.stringify(result, null, 2), !result.ok);
+        }
+
+        async function testUnregister() {
+            if (!currentUsername) {
+                showResult('unregister-result', 'Error: Primero registra un usuario', true);
+                return;
+            }
+
+            showResult('unregister-result', 'Desregistrando...');
+            const result = await apiCall(`/register/${currentUsername}`, 'DELETE');
+            
+            if (result.ok) {
+                currentUsername = null;
+            }
+            
+            showResult('unregister-result', JSON.stringify(result, null, 2), !result.ok);
+        }
+
+        async function runFullTest() {
+            const resultDiv = document.getElementById('full-test-result');
+            resultDiv.className = 'result';
+            resultDiv.textContent = 'Ejecutando tests...\n\n';
+
+            // Test 1: Health
+            resultDiv.textContent += '1. Testing /health...\n';
+            const health = await apiCall('/health');
+            resultDiv.textContent += `   ${health.ok ? '✓' : '✗'} ${JSON.stringify(health.data)}\n\n`;
+
+            // Test 2: Register
+            const testUser = 'fulltest_' + Date.now();
+            resultDiv.textContent += `2. Testing /register (user: ${testUser})...\n`;
+            const register = await apiCall('/register', 'POST', { username: testUser });
+            resultDiv.textContent += `   ${register.ok ? '✓' : '✗'} ${JSON.stringify(register.data)}\n\n`;
+
+            if (!register.ok) {
+                resultDiv.textContent += 'Test detenido por error en registro\n';
+                return;
+            }
+
+            // Test 3: Create group
+            resultDiv.textContent += '3. Testing /groups...\n';
+            const group = await apiCall('/groups', 'POST', {
+                admin: testUser,
+                group: 'testgroup',
+                members: ['member1']
+            });
+            resultDiv.textContent += `   ${group.ok ? '✓' : '✗'} ${JSON.stringify(group.data)}\n\n`;
+
+            // Test 4: Private message
+            resultDiv.textContent += '4. Testing /messages/private...\n';
+            const privMsg = await apiCall('/messages/private', 'POST', {
+                from: testUser,
+                to: 'otheruser',
+                message: 'Test message'
+            });
+            resultDiv.textContent += `   ${privMsg.ok ? '✓' : '✗'} ${JSON.stringify(privMsg.data)}\n\n`;
+
+            // Test 5: Group message
+            resultDiv.textContent += '5. Testing /messages/group...\n';
+            const grpMsg = await apiCall('/messages/group', 'POST', {
+                from: testUser,
+                group: 'testgroup',
+                message: 'Test group message'
+            });
+            resultDiv.textContent += `   ${grpMsg.ok ? '✓' : '✗'} ${JSON.stringify(grpMsg.data)}\n\n`;
+
+            // Test 6: Inbox
+            resultDiv.textContent += '6. Testing /inbox...\n';
+            const inbox = await apiCall(`/inbox/${testUser}`);
+            resultDiv.textContent += `   ${inbox.ok ? '✓' : '✗'} Messages: ${inbox.data.messages?.length || 0}\n\n`;
+
+            // Test 7: Unregister
+            resultDiv.textContent += '7. Testing DELETE /register...\n';
+            const unreg = await apiCall(`/register/${testUser}`, 'DELETE');
+            resultDiv.textContent += `   ${unreg.ok ? '✓' : '✗'} ${JSON.stringify(unreg.data)}\n\n`;
+
+            resultDiv.textContent += '✓ Tests completados!\n';
+        }
+    </script>
+</body>
+</html>

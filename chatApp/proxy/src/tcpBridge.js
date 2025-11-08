@@ -116,7 +116,7 @@ export class TcpBridge {
 }
 
 export function createBridgeFromEnv() {
-  const host = process.env.BACKEND_HOST || '192.168.1.8';
+  const host = process.env.BACKEND_HOST || 'localhost';
   const port = Number(process.env.BACKEND_PORT || '5000');
   return new TcpBridge({ host, port });
 }

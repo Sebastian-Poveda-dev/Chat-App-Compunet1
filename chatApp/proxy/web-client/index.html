@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App - Cliente Web</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla de Login -->
+        <div id="login-screen" class="screen">
+            <div class="login-box">
+                <h1>Chat App</h1>
+                <p>Bienvenido al cliente web de chat</p>
+                <input type="text" id="username-input" placeholder="Ingresa tu nombre de usuario">
+                <button onclick="login()">Conectar</button>
+                <div id="login-error" class="error"></div>
+            </div>
+        </div>
+
+        <!-- Pantalla Principal del Chat -->
+        <div id="chat-screen" class="screen hidden">
+            <div class="header">
+                <h2>Chat App - <span id="current-user"></span></h2>
+                <button onclick="logout()" class="logout-btn">Desconectar</button>
+            </div>
+
+            <div class="main-content">
+                <!-- Panel izquierdo - Acciones -->
+                <div class="left-panel">
+                    <div class="section">
+                        <h3>Crear Grupo</h3>
+                        <input type="text" id="group-name" placeholder="Nombre del grupo">
+                        <input type="text" id="group-members" placeholder="Miembros (separados por coma)">
+                        <button onclick="createGroup()">Crear Grupo</button>
+                    </div>
+
+                    <div class="section">
+                        <h3>Enviar Mensaje</h3>
+                        <select id="message-type">
+                            <option value="private">Mensaje Privado</option>
+                            <option value="group">Mensaje de Grupo</option>
+                        </select>
+                        <input type="text" id="message-recipient" placeholder="Usuario o grupo">
+                        <textarea id="message-content" placeholder="Escribe tu mensaje..."></textarea>
+                        <button onclick="sendMessage()">Enviar Mensaje</button>
+                    </div>
+
+                    <div class="section">
+                        <h3>Ver Historial</h3>
+                        <button onclick="loadMessages()">Actualizar Mensajes</button>
+                    </div>
+                </div>
+
+                <!-- Panel derecho - Mensajes -->
+                <div class="right-panel">
+                    <h3>Historial de Mensajes</h3>
+                    <div id="messages-container"></div>
+                </div>
+            </div>
+
+            <!-- Notificaciones -->
+            <div id="notification" class="notification hidden"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
